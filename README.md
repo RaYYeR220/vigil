@@ -56,11 +56,12 @@ Vigil uses KeeperHub for depth, not just a single call:
 
 - **Runs green with zero setup:** `pnpm test` → **100+ tests** across the six
   packages, including the guard's property invariants.
-- **Lands real, verified transactions.** A full guarded cycle, end-to-end on
-  Base Sepolia (detect → guard → execute → reconcile → audit, audit chain
-  verified):
-  [`0x2ef7e417…24bcde`](https://sepolia.basescan.org/tx/0x2ef7e4172128ef55b8e0284642b44c03e3bafea53aae6a217a2155092924bcde)
-  — status `success`, gas-sponsored.
+- **Lands real, verified transactions — on mainnet.** A full guarded cycle,
+  end-to-end (detect → guard → simulate → execute → reconcile → audit, audit
+  chain verified), landing a real gas-sponsored transaction on **Base mainnet**:
+  [`0xf470488d…88ddc55`](https://basescan.org/tx/0xf470488dff89f952d6eba5e556413af5eea9654ba030c127257160bd088ddc55)
+  — status `success`. (Same flow on Base Sepolia:
+  [`0x2ef7e417…24bcde`](https://sepolia.basescan.org/tx/0x2ef7e4172128ef55b8e0284642b44c03e3bafea53aae6a217a2155092924bcde).)
 
 ## Run it
 
