@@ -5,7 +5,12 @@ import {
   KeeperHubServerError,
   KeeperHubTransportError,
 } from "./errors.js";
-import type { ContractCallParams, KeeperHubClientOptions, TransferParams } from "./types.js";
+import type {
+  ContractCallParams,
+  ExecuteResult,
+  KeeperHubClientOptions,
+  TransferParams,
+} from "./types.js";
 
 const TRANSFER_PATH = "/api/execute/transfer";
 const CONTRACT_CALL_PATH = "/api/execute/contract-call";
@@ -40,6 +45,46 @@ export class KeeperHubClient {
       this.postInit(this.contractCallBody(p, true)),
     );
     return this.asSimulation(parsed);
+  }
+
+  async executeTransfer(
+    p: TransferParams,
+    opts?: { idempotencyKey?: string },
+  ): Promise<ExecuteResult> {
+    const init = this.postInit(this.transferBody(p), opts?.idempotencyKey);
+    return this.asExecuteResult(await this.send(TRANSFER_PATH, init));
+  }
+
+  async executeContractCall(
+    p: ContractCallParams,
+    opts?: { idempotencyKey?: string },
+  ): Promise<ExecuteResult> {
+    const init = this.postInit(this.contractCallBody(p), opts?.idempotencyKey);
+    return this.asExecuteResult(await this.send(CONTRACT_CALL_PATH, init));
+  }
+
+  async readContract(p: ContractCallParams): Promise<{ result: unknown }> {
+    const parsed = await this.send(CONTRACT_CALL_PATH, this.postInit(this.contractCallBody(p)));
+    this.assertOk(parsed);
+    return { result: asRecord(parsed.data).result };
+  }
+
+  private asExecuteResult(parsed: Parsed): ExecuteResult {
+    this.assertOk(parsed);
+    const o = asRecord(parsed.data);
+    return {
+      executionId: typeof o.executionId === "string" ? o.executionId : "",
+      status: o.status === "failed" ? "failed" : "completed",
+    };
+  }
+
+  private assertOk(parsed: Parsed): void {
+    if (parsed.status < 200 || parsed.status >= 300) {
+      throw new KeeperHubRequestError(
+        messageOf(parsed) || `request failed (${parsed.status})`,
+        parsed.status,
+      );
+    }
   }
 
   private asSimulation(parsed: Parsed): SimulationResult {
