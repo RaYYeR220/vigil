@@ -1,0 +1,244 @@
+[
+  {
+    "seq": 0,
+    "prevHash": "GENESIS",
+    "hash": "e913775e802a2dcc64ca9eda8f17bbee795ba333b336456ed4a06a27e70022b6",
+    "event": {
+      "type": "treasury-floor",
+      "chainId": 8453,
+      "subject": "0xA756780c282514dBFBDE87726F83e4AEB8B5Ce6b",
+      "observedValue": 50000000000000,
+      "threshold": 50000000000001,
+      "severity": "warn",
+      "ts": 1784176405
+    },
+    "action": {
+      "chainId": 8453,
+      "kind": "transfer",
+      "to": "0xA756780c282514dBFBDE87726F83e4AEB8B5Ce6b",
+      "value": "10000000000000",
+      "spendWei": "10000000000000"
+    },
+    "decision": {
+      "verdict": "allow",
+      "failures": [],
+      "simulation": { "ok": true, "gasEstimate": "21000" }
+    },
+    "ts": 1784176405,
+    "receipt": {
+      "executionId": "6prbmd4mgfht92km2uuu2",
+      "txHash": "0xf470488dff89f952d6eba5e556413af5eea9654ba030c127257160bd088ddc55",
+      "status": "confirmed",
+      "route": "public",
+      "ts": 1784176405
+    }
+  },
+  {
+    "seq": 1,
+    "prevHash": "e913775e802a2dcc64ca9eda8f17bbee795ba333b336456ed4a06a27e70022b6",
+    "hash": "42b50fff10100fb446243d85dd4490a048e0d0c6962f0c8ea229db28f3438c99",
+    "event": {
+      "type": "liquidation",
+      "chainId": 8453,
+      "subject": "0x489ee077994B6658eAfA855C308275EAd8097C4A",
+      "observedValue": 1.42,
+      "threshold": 1.5,
+      "severity": "warn",
+      "ts": 1784176600
+    },
+    "action": {
+      "chainId": 8453,
+      "kind": "contract-call",
+      "to": "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5",
+      "functionName": "repay",
+      "spendWei": "0"
+    },
+    "decision": {
+      "verdict": "deny",
+      "failures": [
+        { "rule": "simulation", "reason": "Error(ERC20: transfer amount exceeds allowance)" }
+      ],
+      "simulation": {
+        "ok": false,
+        "revertReason": "Error(ERC20: transfer amount exceeds allowance)"
+      }
+    },
+    "ts": 1784176600
+  },
+  {
+    "seq": 2,
+    "prevHash": "42b50fff10100fb446243d85dd4490a048e0d0c6962f0c8ea229db28f3438c99",
+    "hash": "7b53ab3b43963a3706967ae4e7dfeeec7b335da0a4483b3e2077eabd860da94f",
+    "event": {
+      "type": "depeg",
+      "chainId": 8453,
+      "subject": "USDC",
+      "observedValue": 0.981,
+      "threshold": 1,
+      "severity": "critical",
+      "ts": 1784176800
+    },
+    "action": {
+      "chainId": 8453,
+      "kind": "contract-call",
+      "to": "0x2626664c2603336E57B271c5C0b26F421741e481",
+      "functionName": "swapExactTokensForTokens",
+      "spendWei": "0"
+    },
+    "decision": {
+      "verdict": "deny",
+      "failures": [{ "rule": "max-slippage", "reason": "slippage 240bps > max 50bps" }],
+      "simulation": { "ok": true, "gasEstimate": "142000" }
+    },
+    "ts": 1784176800
+  },
+  {
+    "seq": 3,
+    "prevHash": "7b53ab3b43963a3706967ae4e7dfeeec7b335da0a4483b3e2077eabd860da94f",
+    "hash": "55435a0006776c8e13f222f86b0448319325b08b13b2f800e9b8364278bce06c",
+    "event": {
+      "type": "treasury-floor",
+      "chainId": 84532,
+      "subject": "0xA756780c282514dBFBDE87726F83e4AEB8B5Ce6b",
+      "observedValue": 50000000000000,
+      "threshold": 50000000000001,
+      "severity": "warn",
+      "ts": 1784177000
+    },
+    "action": {
+      "chainId": 84532,
+      "kind": "transfer",
+      "to": "0xA756780c282514dBFBDE87726F83e4AEB8B5Ce6b",
+      "value": "50000000000000",
+      "spendWei": "50000000000000"
+    },
+    "decision": {
+      "verdict": "allow",
+      "failures": [],
+      "simulation": { "ok": true, "gasEstimate": "21227" }
+    },
+    "ts": 1784177000,
+    "receipt": {
+      "executionId": "xl08mnc9r5xlyh446azeg",
+      "txHash": "0x2ef7e4172128ef55b8e0284642b44c03e3bafea53aae6a217a2155092924bcde",
+      "status": "confirmed",
+      "route": "public",
+      "ts": 1784177000
+    }
+  },
+  {
+    "seq": 4,
+    "prevHash": "55435a0006776c8e13f222f86b0448319325b08b13b2f800e9b8364278bce06c",
+    "hash": "b570f1b6c12807a0bed54c6f7c051de14af5040a92e84d5e6d6ed8994a4db663",
+    "event": {
+      "type": "liquidation",
+      "chainId": 8453,
+      "subject": "0x7c3aED4C7e2C4B8f9a1E5d6F0b3A2c1D8e4F5a6B",
+      "observedValue": 1.08,
+      "threshold": 1.5,
+      "severity": "critical",
+      "ts": 1784177200
+    },
+    "action": {
+      "chainId": 8453,
+      "kind": "contract-call",
+      "to": "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5",
+      "functionName": "repay",
+      "spendWei": "5000000000000000000"
+    },
+    "decision": {
+      "verdict": "deny",
+      "failures": [
+        {
+          "rule": "max-spend",
+          "reason": "spend 5000000000000000000 exceeds maxSpendWei 1000000000000000000"
+        }
+      ],
+      "simulation": { "ok": true, "gasEstimate": "180000" }
+    },
+    "ts": 1784177200
+  },
+  {
+    "seq": 5,
+    "prevHash": "b570f1b6c12807a0bed54c6f7c051de14af5040a92e84d5e6d6ed8994a4db663",
+    "hash": "64a23822b180244cfb59959e436d37d2aef1cd02aa2404e21dfe642ba87a2b61",
+    "event": {
+      "type": "depeg",
+      "chainId": 8453,
+      "subject": "crvUSD",
+      "observedValue": 0.968,
+      "threshold": 1,
+      "severity": "critical",
+      "ts": 1784177400
+    },
+    "action": {
+      "chainId": 8453,
+      "kind": "contract-call",
+      "to": "0x2626664c2603336E57B271c5C0b26F421741e481",
+      "functionName": "swapExactTokensForTokens",
+      "spendWei": "0"
+    },
+    "decision": {
+      "verdict": "deny",
+      "failures": [{ "rule": "rate-limit", "reason": "3 actions within 3600s >= limit 3" }],
+      "simulation": { "ok": true, "gasEstimate": "151000" }
+    },
+    "ts": 1784177400
+  },
+  {
+    "seq": 6,
+    "prevHash": "64a23822b180244cfb59959e436d37d2aef1cd02aa2404e21dfe642ba87a2b61",
+    "hash": "4a7925cf0177fa479815f2ba4698f7d27e2532b5b9f3baba86f920dc45904ab7",
+    "event": {
+      "type": "liquidation",
+      "chainId": 8453,
+      "subject": "0x1f9dC2B4a6E8f0C3d5A7b9E1F2c4D6a8B0e3C5A1",
+      "observedValue": 1.33,
+      "threshold": 1.5,
+      "severity": "warn",
+      "ts": 1784177600
+    },
+    "action": {
+      "chainId": 8453,
+      "kind": "contract-call",
+      "to": "0xBADc0dE1111111111111111111111111111111111",
+      "functionName": "repay",
+      "spendWei": "0"
+    },
+    "decision": {
+      "verdict": "deny",
+      "failures": [
+        { "rule": "contract-allowlist", "reason": "target 0xBADc0dE… not in allowlist" }
+      ],
+      "simulation": { "ok": true, "gasEstimate": "165000" }
+    },
+    "ts": 1784177600
+  },
+  {
+    "seq": 7,
+    "prevHash": "4a7925cf0177fa479815f2ba4698f7d27e2532b5b9f3baba86f920dc45904ab7",
+    "hash": "f93a3be2b77357ee11a1a62467094c14e17734754a5e5c0aed06ad416be4c346",
+    "event": {
+      "type": "treasury-floor",
+      "chainId": 8453,
+      "subject": "0xA756780c282514dBFBDE87726F83e4AEB8B5Ce6b",
+      "observedValue": 40000000000000,
+      "threshold": 50000000000000,
+      "severity": "warn",
+      "ts": 1784177800
+    },
+    "action": {
+      "chainId": 8453,
+      "kind": "transfer",
+      "to": "0xA756780c282514dBFBDE87726F83e4AEB8B5Ce6b",
+      "value": "10000000000000",
+      "spendWei": "10000000000000"
+    },
+    "decision": {
+      "verdict": "deny",
+      "failures": [{ "rule": "simulation", "reason": "insufficient balance for transfer" }],
+      "simulation": { "ok": false, "revertReason": "insufficient balance for transfer" }
+    },
+    "ts": 1784177800
+  }
+]

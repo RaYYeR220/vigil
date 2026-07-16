@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vigil · Guardian Console</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3l11 4v8c0 7-5 12-11 14C10 27 5 22 5 15V7z' fill='%23070b0a' stroke='%235ef2a0' stroke-width='2'/%3E%3Cpath d='M11 16l4 4 7-8' fill='none' stroke='%235ef2a0' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #070b0a; --panel: #0b1210; --panel-2: #0e1714; --line: #17251f;
+    --txt: #d3e8de; --muted: #6f8a7e; --dim: #46564f;
+    --signal: #5ef2a0; --signal-dim: #2b6b4d; --deny: #ff4d5e; --warn: #f4b740;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --disp: "Chakra Petch", var(--mono);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--ink); color: var(--txt); font-family: var(--mono); }
+  body {
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, rgba(94,242,160,.06), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, rgba(94,242,160,.04), transparent 55%);
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+  /* scanline + grain atmosphere */
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50; opacity: .5;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);
+    mix-blend-mode: overlay;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 40px 22px 90px; }
+
+  header.top { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .brand { font-family: var(--disp); font-weight: 700; font-size: 30px; letter-spacing: .18em; color: var(--txt); }
+  .brand b { color: var(--signal); }
+  .tag { color: var(--muted); font-size: 12px; letter-spacing: .32em; text-transform: uppercase; }
+  .beat { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 12px var(--signal); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  /* integrity panel */
+  .integrity {
+    margin: 26px 0 8px; border: 1px solid var(--line); background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border-radius: 3px; padding: 18px 20px; display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center;
+  }
+  .seal { display: flex; align-items: center; gap: 12px; }
+  .seal .ring {
+    width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--signal);
+    display: grid; place-items: center; color: var(--signal); box-shadow: 0 0 22px rgba(94,242,160,.25) inset;
+    font-family: var(--disp); font-weight: 700;
+  }
+  .seal .lbl { font-family: var(--disp); letter-spacing: .14em; font-weight: 600; }
+  .seal .lbl small { display: block; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .22em; text-transform: uppercase; margin-top: 3px; }
+  .stats { display: flex; gap: 26px; justify-content: flex-end; flex-wrap: wrap; }
+  .stat { text-align: right; }
+  .stat .n { font-family: var(--disp); font-size: 26px; font-weight: 700; line-height: 1; }
+  .stat .k { color: var(--muted); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; margin-top: 5px; }
+  .stat.allow .n { color: var(--signal); } .stat.deny .n { color: var(--deny); }
+
+  .sub { color: var(--dim); font-size: 11px; letter-spacing: .24em; text-transform: uppercase; margin: 34px 0 10px; }
+
+  /* chain */
+  .chain { position: relative; }
+  .rec { position: relative; padding-left: 34px; margin-bottom: 14px; opacity: 0; transform: translateY(10px); animation: rise .5s forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  /* the hash-thread */
+  .rec::before { content: ""; position: absolute; left: 11px; top: 26px; bottom: -14px; width: 2px;
+    background: linear-gradient(180deg, var(--signal-dim), transparent); }
+  .rec:last-child::before { display: none; }
+  .rec .node { position: absolute; left: 5px; top: 20px; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--ink); border: 2px solid var(--signal-dim); }
+  .rec.deny .node { border-color: var(--deny); }
+  .rec.allow .node { border-color: var(--signal); box-shadow: 0 0 10px rgba(94,242,160,.5); }
+
+  .card { border: 1px solid var(--line); background: var(--panel); border-radius: 3px; overflow: hidden;
+    transition: border-color .2s, transform .2s; }
+  .card:hover { border-color: #223a30; transform: translateX(2px); }
+  .card.deny { border-left: 2px solid var(--deny); }
+  .card.allow { border-left: 2px solid var(--signal); }
+
+  .row { display: flex; align-items: center; gap: 14px; padding: 12px 16px; }
+  .row + .row { border-top: 1px solid var(--line); }
+  .meta { display: flex; align-items: baseline; gap: 12px; width: 100%; }
+  .seq { color: var(--dim); font-size: 11px; }
+  .etype { font-family: var(--disp); font-weight: 600; letter-spacing: .08em; text-transform: capitalize; }
+  .badge { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 2px 7px; border-radius: 2px; border: 1px solid var(--line); color: var(--muted); }
+  .badge.warn { color: var(--warn); border-color: #3a3115; }
+  .badge.crit { color: var(--deny); border-color: #3a1720; }
+  .badge.chain { color: var(--muted); }
+  .time { margin-left: auto; color: var(--dim); font-size: 11px; white-space: nowrap; }
+
+  .detect { color: var(--muted); font-size: 12.5px; }
+  .detect b { color: var(--txt); font-weight: 500; }
+  .val { color: var(--txt); } .val.bad { color: var(--deny); } .val.ok { color: var(--signal); }
+
+  /* verdict stamp */
+  .stamp { margin-left: auto; font-family: var(--disp); font-weight: 700; letter-spacing: .18em; font-size: 15px;
+    padding: 5px 12px; border: 2px solid; border-radius: 3px; transform: rotate(-3deg); }
+  .stamp.allow { color: var(--signal); border-color: var(--signal); box-shadow: 0 0 16px rgba(94,242,160,.18); }
+  .stamp.deny { color: var(--deny); border-color: var(--deny); box-shadow: 0 0 16px rgba(255,77,94,.16); }
+
+  .gate { flex-direction: column; align-items: stretch; gap: 8px; }
+  .gate .hd { display: flex; align-items: center; gap: 12px; }
+  .gate .lab { color: var(--dim); font-size: 10px; letter-spacing: .24em; text-transform: uppercase; }
+  .fail { color: var(--deny); font-size: 12px; display: flex; gap: 8px; }
+  .fail .r { color: var(--warn); text-transform: uppercase; letter-spacing: .1em; font-size: 10px; border: 1px solid #3a3115; padding: 1px 6px; border-radius: 2px; white-space: nowrap; }
+  .simline { color: var(--muted); font-size: 12px; }
+
+  .exec a { color: var(--signal); text-decoration: none; border-bottom: 1px dashed var(--signal-dim); }
+  .exec a:hover { border-bottom-style: solid; }
+  .spons { color: var(--signal); border: 1px solid var(--signal-dim); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; }
+  .blocked { color: var(--deny); font-size: 12px; letter-spacing: .06em; }
+  .hash { font-size: 11px; color: var(--dim); cursor: pointer; }
+  .hash:hover { color: var(--muted); }
+  .hash b { color: var(--signal-dim); }
+  footer { margin-top: 44px; color: var(--dim); font-size: 11px; letter-spacing: .04em; line-height: 1.7; }
+  footer a { color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .rec { animation: none; opacity: 1; transform: none; } .dot { animation: none; } }
+  @media (max-width: 620px) { .integrity { grid-template-columns: 1fr; } .stats { justify-content: flex-start; } .time { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">VI<b>G</b>IL</div>
+    <div class="tag">On-chain risk guardian · watch → gate → execute → observe</div>
+    <div class="beat"><span class="dot"></span> Guardian live</div>
+  </header>
+
+  <section class="integrity" id="integrity"></section>
+  <div class="sub">Tamper-evident audit chain — every decision, sealed and linked</div>
+  <main class="chain" id="chain"></main>
+
+  <footer>
+    Each record is a hash-linked block: <b style="color:var(--muted)">detect → gate → simulate → execute</b>. A denied
+    action is never sent. Execution rides on KeeperHub — gas-sponsored, status-reconciled. Chain integrity is verified
+    against the same <span style="color:var(--muted)">@vigil/audit</span> engine that produced it.<br />
+    Sample feed · two records are real, verifiable on-chain transactions.
+  </footer>
+</div>
+
+<script type="module">
+  const short = (h) => h ? h.slice(0, 6) + "…" + h.slice(-6) : "";
+  const scan = (chainId) => chainId === 8453 ? "https://basescan.org" : "https://sepolia.basescan.org";
+  const chainName = (id) => id === 8453 ? "Base" : id === 84532 ? "Base Sepolia" : "chain " + id;
+  const fmtEvent = (e) => {
+    if (e.type === "liquidation") return `Aave health factor <b class="${e.observedValue < e.threshold ? 'val bad' : 'val ok'}">${e.observedValue.toFixed(2)}</b> vs floor <b>${e.threshold.toFixed(2)}</b> · <b>${short(e.subject)}</b>`;
+    if (e.type === "depeg") return `<b>${e.subject}</b> priced <b class="val bad">$${e.observedValue.toFixed(3)}</b> vs peg <b>$${e.threshold.toFixed(2)}</b>`;
+    return `Treasury <b>${short(e.subject)}</b> below floor · balance <b>${(e.observedValue/1e18).toFixed(6)} ETH</b>`;
+  };
+
+  const data = await fetch("./demo-data.json").then((r) => r.json());
+
+  // chain-link integrity: every prevHash must match the previous record's hash
+  let intact = data.length > 0 && data[0].prevHash === "GENESIS";
+  for (let i = 1; i < data.length; i++) if (data[i].prevHash !== data[i - 1].hash) intact = false;
+
+  const executed = data.filter((r) => r.receipt && r.receipt.txHash).length;
+  const blocked = data.filter((r) => r.decision.verdict === "deny").length;
+  const guards = new Set(data.map((r) => r.event.type)).size;
+
+  document.getElementById("integrity").innerHTML = `
+    <div class="seal">
+      <div class="ring">${intact ? "✓" : "✕"}</div>
+      <div class="lbl">AUDIT CHAIN — ${intact ? "VERIFIED" : "TAMPERED"}<small>${data.length} blocks · sha-256 linked</small></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n">${guards}</div><div class="k">guard types</div></div>
+      <div class="stat deny"><div class="n">${blocked}</div><div class="k">unsafe · blocked</div></div>
+      <div class="stat allow"><div class="n">${executed}</div><div class="k">txs landed</div></div>
+    </div>`;
+
+  const chain = document.getElementById("chain");
+  data.forEach((r, i) => {
+    const allow = r.decision.verdict === "allow";
+    const sim = r.decision.simulation;
+    const sev = r.event.severity === "critical" ? "crit" : "warn";
+    const el = document.createElement("article");
+    el.className = "rec " + (allow ? "allow" : "deny");
+    el.style.animationDelay = (i * 70) + "ms";
+    const failHtml = (r.decision.failures || []).map((f) =>
+      `<div class="fail"><span class="r">${f.rule}</span><span>${f.reason}</span></div>`).join("");
+    const execHtml = allow && r.receipt?.txHash
+      ? `<div class="row exec"><span class="lab" style="color:var(--dim);font-size:10px;letter-spacing:.24em">EXECUTE</span>
+           <a href="${scan(r.event.chainId)}/tx/${r.receipt.txHash}" target="_blank" rel="noopener">${short(r.receipt.txHash)} ↗</a>
+           <span class="spons">gas-sponsored</span><span class="time">${r.receipt.status}</span></div>`
+      : `<div class="row"><span class="lab" style="color:var(--dim);font-size:10px;letter-spacing:.24em">EXECUTE</span><span class="blocked">■ blocked — no transaction signed</span></div>`;
+    el.innerHTML = `
+      <div class="node"></div>
+      <div class="card ${allow ? "allow" : "deny"}">
+        <div class="row"><div class="meta">
+          <span class="seq">#${String(r.seq).padStart(2,"0")}</span>
+          <span class="etype">${r.event.type.replace("-"," ")}</span>
+          <span class="badge ${sev}">${r.event.severity}</span>
+          <span class="badge chain">${chainName(r.event.chainId)}</span>
+          <span class="time">${new Date(r.event.ts*1000).toISOString().replace("T"," ").slice(0,19)}Z</span>
+        </div></div>
+        <div class="row"><div class="detect">${fmtEvent(r.event)}</div></div>
+        <div class="row gate">
+          <div class="hd"><span class="lab">GATE</span><span class="stamp ${allow?"allow":"deny"}">${allow?"ALLOW":"DENY"}</span></div>
+          ${failHtml}
+          <div class="simline">simulate: ${sim.ok ? `<span class="val ok">clean</span> · gas ${Number(sim.gasEstimate).toLocaleString()}` : `<span class="val bad">would revert</span> — ${sim.revertReason}`}</div>
+        </div>
+        ${execHtml}
+        <div class="row"><span class="hash" title="click to copy" data-h="${r.hash}"><b>seal</b> ${short(r.hash)} &nbsp;·&nbsp; <b>prev</b> ${r.prevHash === "GENESIS" ? "GENESIS" : short(r.prevHash)}</span></div>
+      </div>`;
+    chain.appendChild(el);
+  });
+
+  chain.addEventListener("click", (e) => {
+    const h = e.target.closest(".hash");
+    if (h) { navigator.clipboard?.writeText(h.dataset.h); h.style.color = "var(--signal)"; setTimeout(() => h.style.color = "", 600); }
+  });
+</script>
+</body>
+</html>

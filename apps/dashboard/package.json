@@ -1,0 +1,14 @@
+{
+  "name": "@vigil/dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gen": "tsx scripts/genDemo.ts",
+    "serve": "npx --yes serve public -l 4173"
+  },
+  "dependencies": {
+    "@vigil/audit": "workspace:*",
+    "@vigil/guard-core": "workspace:*"
+  }
+}
