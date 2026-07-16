@@ -52,6 +52,10 @@ Vigil uses KeeperHub for depth, not just a single call:
   KeeperHub marketplace as a typed, discoverable per-workflow tool, **priced
   per call and settled in USDC over x402** — other agents can route their own
   position checks through it.
+- **ERC-8004 identity** — the guardian is registered as a Trustless Agent on the
+  ERC-8004 Identity Registry (Base mainnet), its registration file stored fully
+  on-chain, executed through KeeperHub — so it's discoverable across the agent
+  economy.
 
 ## Proof
 
@@ -63,6 +67,10 @@ Vigil uses KeeperHub for depth, not just a single call:
   [`0xf470488d…88ddc55`](https://basescan.org/tx/0xf470488dff89f952d6eba5e556413af5eea9654ba030c127257160bd088ddc55)
   — status `success`. (Same flow on Base Sepolia:
   [`0x2ef7e417…24bcde`](https://sepolia.basescan.org/tx/0x2ef7e4172128ef55b8e0284642b44c03e3bafea53aae6a217a2155092924bcde).)
+- **Registered on-chain as a Trustless Agent.** Vigil holds ERC-8004 agent
+  **#59164** on Base mainnet (registration file fully on-chain), minted through
+  KeeperHub:
+  [`0x43189a93…adc25a6`](https://basescan.org/tx/0x43189a9360e7a6083e0f30092fdfe0b55217ee7ec81d8b49da0bc1429adc25a6).
 
 ## Run it
 
