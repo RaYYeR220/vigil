@@ -32,6 +32,12 @@ importers:
 
   packages/guard-core: {}
 
+  packages/keeperhub:
+    dependencies:
+      '@vigil/guard-core':
+        specifier: workspace:*
+        version: link:../guard-core
+
 packages:
 
   '@biomejs/biome@1.9.4':

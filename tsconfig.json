@@ -1,4 +1,8 @@
 {
   "files": [],
-  "references": [{ "path": "./packages/guard-core" }, { "path": "./packages/audit" }]
+  "references": [
+    { "path": "./packages/guard-core" },
+    { "path": "./packages/audit" },
+    { "path": "./packages/keeperhub" }
+  ]
 }
