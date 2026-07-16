@@ -36,6 +36,7 @@ A small pnpm/TypeScript monorepo of focused, independently-tested units.
 | `packages/keeperhub` | KeeperHub client: `simulate*`, `execute*`, `getExecutionStatus` (the authoritative source of the transaction hash), typed errors, idempotency, retry/back-off. |
 | `packages/audit` | SHA-256 hash-chained, tamper-evident execution log. `append` / `verify` / `export`. |
 | `apps/agent` | The guardian loop — `runGuardCycle` wires detect → plan → simulate → guard → execute → reconcile → audit, isolating each guard so one failure never stops the rest. |
+| `apps/dashboard` | The **Guardian Console** — a tamper-evident observability UI that renders the audit trail as a hash-linked chain: every detect → gate → simulate → execute decision, with the allow/deny verdict and the on-chain transaction front and centre. |
 
 ## KeeperHub integration
 
@@ -81,6 +82,13 @@ KH_API_KEY=kh_... WALLET=0x... pnpm exec tsx apps/agent/examples/treasuryGuardSm
 It reads a real balance, runs the full cycle, lands a sponsored protective
 transfer, reconciles the hash, and prints the verified BaseScan link plus the
 tamper-evident audit trail.
+
+Open the **Guardian Console** (the observability UI):
+
+```bash
+pnpm --filter @vigil/dashboard gen     # regenerate the demo audit chain
+pnpm --filter @vigil/dashboard serve   # serve it at http://localhost:4319
+```
 
 ## Status & limits
 
