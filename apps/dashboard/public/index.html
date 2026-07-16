@@ -40,6 +40,14 @@
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 12px var(--signal); animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
 
+  /* protocol surfaces strip */
+  .surfaces { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 22px; }
+  .surf { border: 1px solid var(--line); background: var(--panel); border-radius: 3px; padding: 12px 14px; }
+  .surf .k { display: block; color: var(--dim); font-size: 10px; letter-spacing: .22em; text-transform: uppercase; margin-bottom: 6px; }
+  .surf .v { color: var(--txt); font-size: 12.5px; letter-spacing: .02em; }
+  .surf .v em { color: var(--signal); font-style: normal; }
+  @media (max-width: 620px) { .surfaces { grid-template-columns: 1fr; } }
+
   /* integrity panel */
   .integrity {
     margin: 26px 0 8px; border: 1px solid var(--line); background: linear-gradient(180deg, var(--panel-2), var(--panel));
@@ -128,6 +136,12 @@
     <div class="tag">On-chain risk guardian · watch → gate → execute → observe</div>
     <div class="beat"><span class="dot"></span> Guardian live</div>
   </header>
+
+  <section class="surfaces">
+    <div class="surf"><span class="k">Guards armed</span><span class="v">liquidation · depeg · treasury</span></div>
+    <div class="surf"><span class="k">Marketplace</span><span class="v">vigil-aave-health-guard · 0.01 USDC/call <em>· earning via x402</em></span></div>
+    <div class="surf"><span class="k">Agent identity</span><span class="v">ERC-8004 #59164 <em>· Base mainnet</em></span></div>
+  </section>
 
   <section class="integrity" id="integrity"></section>
   <div class="sub">Tamper-evident audit chain — every decision, sealed and linked</div>
