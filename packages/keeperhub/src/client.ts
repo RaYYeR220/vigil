@@ -99,24 +99,45 @@ export class KeeperHubClient {
 
   private async send(path: string, init: RequestInit): Promise<Parsed> {
     const url = `${this.baseUrl}${path}`;
-    let res: Response;
-    try {
-      res = await this.fetchFn(url, init);
-    } catch (err) {
-      throw new KeeperHubTransportError(`network error calling ${path}`, undefined, { cause: err });
-    }
+    for (let attempt = 0; ; attempt++) {
+      let res: Response;
+      try {
+        res = await this.fetchFn(url, init);
+      } catch (err) {
+        throw new KeeperHubTransportError(`network error calling ${path}`, undefined, {
+          cause: err,
+        });
+      }
 
-    const parsed = await readBody(res);
-    if (res.status === 401 || res.status === 403) {
-      throw new KeeperHubAuthError(messageOf(parsed) || `unauthorized (${res.status})`, res.status);
+      const parsed = await readBody(res);
+      const retryable = res.status === 429 || res.status >= 500;
+      if (retryable && attempt < this.maxRetries) {
+        await this.sleepFn(this.retryDelay(res.headers, attempt));
+        continue;
+      }
+      if (res.status === 401 || res.status === 403) {
+        throw new KeeperHubAuthError(
+          messageOf(parsed) || `unauthorized (${res.status})`,
+          res.status,
+        );
+      }
+      if (retryable) {
+        throw new KeeperHubServerError(
+          messageOf(parsed) || `server error (${res.status})`,
+          res.status,
+        );
+      }
+      return parsed;
     }
-    if (res.status === 429 || res.status >= 500) {
-      throw new KeeperHubServerError(
-        messageOf(parsed) || `server error (${res.status})`,
-        res.status,
-      );
+  }
+
+  private retryDelay(headers: Headers, attempt: number): number {
+    const retryAfter = headers.get("retry-after");
+    if (retryAfter !== null) {
+      const seconds = Number(retryAfter);
+      if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000;
     }
-    return parsed;
+    return this.baseRetryDelayMs * 2 ** attempt;
   }
 
   private postInit(body: unknown, idempotencyKey?: string): RequestInit {
