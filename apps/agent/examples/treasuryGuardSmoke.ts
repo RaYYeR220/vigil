@@ -14,8 +14,8 @@ import { KeeperHubClient } from "@vigil/keeperhub";
 import { plan } from "@vigil/planner";
 import { type GuardDeps, type GuardSpec, runGuardCycle } from "../src/guardianLoop.js";
 
-const CHAIN_ID = 84532; // Base Sepolia
-const RPC = "https://sepolia.base.org";
+const CHAIN_ID = Number(process.env.CHAIN_ID ?? "84532"); // default Base Sepolia
+const RPC = process.env.RPC ?? "https://sepolia.base.org";
 
 const apiKey = process.env.KH_API_KEY ?? "";
 const wallet = (process.env.WALLET ?? "") as `0x${string}`;
@@ -49,7 +49,7 @@ console.log(`balance: ${balance} wei (${Number(balance) / 1e18} ETH)`);
 
 // Floor above the real balance so the detector fires on genuine on-chain data.
 const floorWei = balance + 1n;
-const topUpWei = 50_000_000_000_000n; // 0.00005 ETH protective transfer (self)
+const topUpWei = BigInt(process.env.TOPUP_WEI ?? "50000000000000"); // default 0.00005 ETH self-transfer
 
 const guard: GuardSpec = {
   id: "treasury-sepolia",
@@ -89,4 +89,5 @@ console.log("\naudit chain verify:", JSON.stringify(audit.verify()));
 console.log("audit trail:", JSON.stringify(audit.export(), bigintReplacer, 2));
 
 const txHash = results[0]?.txHash;
-if (txHash) console.log(`\nBaseScan: https://sepolia.basescan.org/tx/${txHash}`);
+const explorer = CHAIN_ID === 8453 ? "https://basescan.org" : "https://sepolia.basescan.org";
+if (txHash) console.log(`\nBaseScan: ${explorer}/tx/${txHash}`);
