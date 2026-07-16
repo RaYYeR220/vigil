@@ -109,3 +109,49 @@ describe("AuditLog export / from", () => {
     expect(restored.export()).toEqual(log.export());
   });
 });
+
+describe("AuditLog.verify", () => {
+  const seeded = () => {
+    const log = new AuditLog();
+    log.append({ event, action, decision, ts: 1000 });
+    log.append({ event, action, decision, receipt, ts: 1001 });
+    log.append({ event, action, decision, ts: 1002 });
+    return log;
+  };
+
+  it("is ok for an empty chain", () => {
+    expect(new AuditLog().verify()).toEqual({ ok: true });
+  });
+
+  it("is ok for an untampered chain", () => {
+    expect(seeded().verify()).toEqual({ ok: true });
+  });
+
+  it("re-imported untampered records still verify", () => {
+    expect(AuditLog.from(seeded().export()).verify()).toEqual({ ok: true });
+  });
+
+  it("detects a tampered payload and reports the break index", () => {
+    const records = seeded().export();
+    records[1].event.observedValue = 42;
+    expect(AuditLog.from(records).verify()).toEqual({ ok: false, brokenAt: 1 });
+  });
+
+  it("detects tampering of the first record", () => {
+    const records = seeded().export();
+    records[0].action.value = 999n;
+    expect(AuditLog.from(records).verify()).toEqual({ ok: false, brokenAt: 0 });
+  });
+
+  it("detects a severed prevHash link", () => {
+    const records = seeded().export();
+    records[2].prevHash = "0".repeat(64);
+    expect(AuditLog.from(records).verify()).toEqual({ ok: false, brokenAt: 2 });
+  });
+
+  it("detects a swapped hash field", () => {
+    const records = seeded().export();
+    records[1].hash = records[0].hash;
+    expect(AuditLog.from(records).verify()).toEqual({ ok: false, brokenAt: 1 });
+  });
+});

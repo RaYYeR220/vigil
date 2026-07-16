@@ -70,6 +70,30 @@ export class AuditLog {
     return record;
   }
 
+  /**
+   * Re-walk the chain: every record must point at its predecessor's hash and
+   * must re-hash to the value it carries. Returns the index of the first record
+   * that fails either check.
+   */
+  verify(): { ok: boolean; brokenAt?: number } {
+    let prevHash = GENESIS;
+    for (const [i, r] of this.records.entries()) {
+      if (r.prevHash !== prevHash) return { ok: false, brokenAt: i };
+      const recomputed = seal({
+        seq: r.seq,
+        prevHash: r.prevHash,
+        event: r.event,
+        action: r.action,
+        decision: r.decision,
+        receipt: r.receipt,
+        ts: r.ts,
+      });
+      if (r.hash !== recomputed) return { ok: false, brokenAt: i };
+      prevHash = r.hash;
+    }
+    return { ok: true };
+  }
+
   /** Deep copy of the chain, safe for the caller to keep or mutate. */
   export(): AuditRecord[] {
     return this.records.map((r) => structuredClone(r));
