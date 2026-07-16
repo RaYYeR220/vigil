@@ -1,6 +1,6 @@
 import type { ProposedAction, RiskEvent, SimulationResult } from "@vigil/guard-core";
 import { describe, expect, it, vi } from "vitest";
-import { type GuardDeps, type GuardSpec, runGuardCycle } from "../src/guardianLoop.js";
+import { type GuardDeps, type GuardSpec, runGuardCycle, weiToEther } from "../src/guardianLoop.js";
 
 const event: RiskEvent = {
   type: "liquidation",
@@ -133,5 +133,41 @@ describe("runGuardCycle", () => {
       deps,
     );
     expect(results.map((r) => r.status)).toEqual(["idle", "blocked", "executed"]);
+  });
+
+  it("passes transfer amounts to KeeperHub as decimal ether, not wei", async () => {
+    const transferAction: ProposedAction = {
+      chainId: 84532,
+      kind: "transfer",
+      to: "0xsafe",
+      value: 50000000000000n, // 0.00005 ETH in wei
+      spendWei: 50000000000000n,
+    };
+    const simTransfer = vi.fn(async () => ({ ok: true }) as SimulationResult);
+    const execTransfer = vi.fn(async () => ({ executionId: "ex1", status: "completed" as const }));
+    const deps: GuardDeps = {
+      keeperhub: {
+        simulateContractCall: async () => ({ ok: true }),
+        simulateTransfer: simTransfer,
+        executeContractCall: vi.fn(),
+        executeTransfer: execTransfer,
+      },
+      audit: { append: vi.fn() },
+      reconcile: async () => "0xhash",
+      now: () => 1,
+    };
+    await runGuardCycle([spec({ policy: {}, plan: () => transferAction })], deps);
+    expect(simTransfer.mock.calls[0]?.[0]?.amount).toBe("0.00005");
+    expect(execTransfer.mock.calls[0]?.[0]?.amount).toBe("0.00005");
+  });
+});
+
+describe("weiToEther", () => {
+  it("formats whole and fractional wei without floating point", () => {
+    expect(weiToEther(0n)).toBe("0");
+    expect(weiToEther(1000000000000000000n)).toBe("1");
+    expect(weiToEther(50000000000000n)).toBe("0.00005");
+    expect(weiToEther(1n)).toBe("0.000000000000000001");
+    expect(weiToEther(1234000000000000000n)).toBe("1.234");
   });
 });

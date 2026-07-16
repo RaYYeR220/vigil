@@ -63,18 +63,31 @@ export type CycleResult = {
   error?: string | undefined;
 };
 
+/**
+ * Actions carry native value in wei (bigint), but KeeperHub's transfer amount and
+ * payable-call value are decimal ether strings — convert without floating point.
+ */
+export function weiToEther(wei: bigint): string {
+  const negative = wei < 0n;
+  const digits = (negative ? -wei : wei).toString().padStart(19, "0");
+  const whole = digits.slice(0, -18);
+  const fraction = digits.slice(-18).replace(/0+$/, "");
+  const value = fraction ? `${whole}.${fraction}` : whole;
+  return negative ? `-${value}` : value;
+}
+
 function toCall(a: ProposedAction): CallParams {
   return {
     chainId: a.chainId,
     contractAddress: a.to,
     functionName: a.functionName ?? "",
     functionArgs: a.args,
-    value: a.value !== undefined ? String(a.value) : undefined,
+    value: a.value !== undefined ? weiToEther(a.value) : undefined,
   };
 }
 
 function toTransfer(a: ProposedAction): TransferParams {
-  return { chainId: a.chainId, recipientAddress: a.to, amount: String(a.value ?? 0n) };
+  return { chainId: a.chainId, recipientAddress: a.to, amount: weiToEther(a.value ?? 0n) };
 }
 
 /**
