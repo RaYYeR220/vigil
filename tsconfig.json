@@ -1,4 +1,4 @@
 {
   "files": [],
-  "references": [{ "path": "./packages/guard-core" }]
+  "references": [{ "path": "./packages/guard-core" }, { "path": "./packages/audit" }]
 }
