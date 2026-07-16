@@ -1,0 +1,15 @@
+{
+  "name": "@vigil/agent",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@vigil/guard-core": "workspace:*",
+    "@vigil/audit": "workspace:*",
+    "@vigil/keeperhub": "workspace:*",
+    "@vigil/planner": "workspace:*",
+    "@vigil/detect": "workspace:*"
+  }
+}

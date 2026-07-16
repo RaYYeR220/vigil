@@ -3,6 +3,9 @@
   "references": [
     { "path": "./packages/guard-core" },
     { "path": "./packages/audit" },
-    { "path": "./packages/keeperhub" }
+    { "path": "./packages/keeperhub" },
+    { "path": "./packages/planner" },
+    { "path": "./packages/detect" },
+    { "path": "./apps/agent" }
   ]
 }
