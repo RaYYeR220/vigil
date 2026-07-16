@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.*
+coverage/
+# never publish (defensive)
+BRIEF.md
+ALTERNATIVES.md
+internal/
+*-internal/
+ui-prototypes/
+mockups/
+variants/
