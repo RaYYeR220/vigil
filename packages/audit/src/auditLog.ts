@@ -69,4 +69,16 @@ export class AuditLog {
     this.records.push(record);
     return record;
   }
+
+  /** Deep copy of the chain, safe for the caller to keep or mutate. */
+  export(): AuditRecord[] {
+    return this.records.map((r) => structuredClone(r));
+  }
+
+  /** Rebuild a log from previously exported records (e.g. to verify them). */
+  static from(records: readonly AuditRecord[]): AuditLog {
+    const log = new AuditLog();
+    for (const r of records) log.records.push(structuredClone(r));
+    return log;
+  }
 }

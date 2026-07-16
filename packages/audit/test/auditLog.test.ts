@@ -84,3 +84,28 @@ describe("AuditLog.append", () => {
     expect(withReceipt.hash).not.toBe(withoutReceipt.hash);
   });
 });
+
+describe("AuditLog export / from", () => {
+  it("exports every record in sequence order", () => {
+    const log = new AuditLog();
+    log.append({ event, action, decision, ts: 1000 });
+    log.append({ event, action, decision, receipt, ts: 1001 });
+    expect(log.export().map((r) => r.seq)).toEqual([0, 1]);
+  });
+
+  it("returns a deep copy so mutating the export cannot corrupt the log", () => {
+    const log = new AuditLog();
+    log.append({ event, action, decision, ts: 1000 });
+    const exported = log.export();
+    exported[0].event.observedValue = 999;
+    expect(log.export()[0].event.observedValue).toBe(1.02);
+  });
+
+  it("round-trips: from(export()) yields equal records", () => {
+    const log = new AuditLog();
+    log.append({ event, action, decision, ts: 1000 });
+    log.append({ event, action, decision, receipt, ts: 1001 });
+    const restored = AuditLog.from(log.export());
+    expect(restored.export()).toEqual(log.export());
+  });
+});
