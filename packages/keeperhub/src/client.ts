@@ -1,4 +1,4 @@
-import type { SimulationResult } from "@vigil/guard-core";
+import type { Hex, SimulationResult } from "@vigil/guard-core";
 import {
   KeeperHubAuthError,
   KeeperHubRequestError,
@@ -8,6 +8,7 @@ import {
 import type {
   ContractCallParams,
   ExecuteResult,
+  ExecutionStatus,
   KeeperHubClientOptions,
   TransferParams,
 } from "./types.js";
@@ -67,6 +68,31 @@ export class KeeperHubClient {
     const parsed = await this.send(CONTRACT_CALL_PATH, this.postInit(this.contractCallBody(p)));
     this.assertOk(parsed);
     return { result: asRecord(parsed.data).result };
+  }
+
+  /**
+   * Authoritative execution status by id — the only source of the on-chain
+   * transaction hash, since the execute endpoints return just an executionId.
+   * Works for sponsored / smart-account executions the block explorer's
+   * EOA transaction list never surfaces.
+   */
+  async getExecutionStatus(executionId: string): Promise<ExecutionStatus> {
+    const path = `/api/execute/${encodeURIComponent(executionId)}/status`;
+    const parsed = await this.send(path, this.getInit());
+    this.assertOk(parsed);
+    const o = asRecord(parsed.data);
+    const status: ExecutionStatus = {
+      executionId: typeof o.executionId === "string" ? o.executionId : executionId,
+      status:
+        o.status === "pending" || o.status === "running" || o.status === "failed"
+          ? o.status
+          : "completed",
+    };
+    if (typeof o.transactionHash === "string") status.transactionHash = o.transactionHash as Hex;
+    if (typeof o.transactionLink === "string") status.transactionLink = o.transactionLink;
+    if (typeof o.gasUsedWei === "string") status.gasUsedWei = o.gasUsedWei;
+    if (typeof o.error === "string") status.error = o.error;
+    return status;
   }
 
   private asExecuteResult(parsed: Parsed): ExecuteResult {
@@ -138,6 +164,13 @@ export class KeeperHubClient {
       if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000;
     }
     return this.baseRetryDelayMs * 2 ** attempt;
+  }
+
+  private getInit(): RequestInit {
+    return {
+      method: "GET",
+      headers: { Authorization: `Bearer ${this.apiKey}`, Accept: "application/json" },
+    };
   }
 
   private postInit(body: unknown, idempotencyKey?: string): RequestInit {

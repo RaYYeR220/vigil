@@ -24,6 +24,15 @@ export type ExecuteResult = {
   status: "completed" | "failed";
 };
 
+export type ExecutionStatus = {
+  executionId: string;
+  status: "pending" | "running" | "completed" | "failed";
+  transactionHash?: Hex;
+  transactionLink?: string;
+  gasUsedWei?: string;
+  error?: string | null;
+};
+
 export type KeeperHubClientOptions = {
   apiKey: string;
   baseUrl?: string;
