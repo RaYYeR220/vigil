@@ -42,3 +42,34 @@ export type GuardDecision = {
   failures: RuleFailure[];
   simulation: SimulationResult;
 };
+
+export type RiskEvent = {
+  type: "liquidation" | "depeg" | "treasury-floor";
+  chainId: number;
+  subject: string;
+  observedValue: number;
+  threshold: number;
+  severity: "warn" | "critical";
+  ts: number;
+};
+
+export type ExecutionReceipt = {
+  executionId: string;
+  txHash?: Hex;
+  gasUsed?: bigint;
+  status: "submitted" | "confirmed" | "failed";
+  retries: number;
+  route: "private" | "public";
+  ts: number;
+};
+
+export type AuditRecord = {
+  seq: number;
+  prevHash: string;
+  hash: string;
+  event: RiskEvent;
+  action: ProposedAction;
+  decision: Omit<GuardDecision, never>;
+  receipt?: ExecutionReceipt;
+  ts: number;
+};
