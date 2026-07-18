@@ -10,6 +10,8 @@ before a single transaction is signed — then records the whole decision in a
 tamper-evident trail. Execution rides on **KeeperHub** (reliable, gas-sponsored,
 MEV-aware); Vigil owns the *judgement*.
 
+**▶ [Watch the 2-minute demo](https://youtu.be/E-enUzuQLGo)**
+
 ```
  DETECT            DECIDE           GUARD  (the interlock)        EXECUTE            OBSERVE
  read on-chain  →  propose a     →  ┌ policy gate  ────────┐  →  KeeperHub       →  hash-chained
